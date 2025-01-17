@@ -1,16 +1,17 @@
 /* Clone simplficado do comando grep existente em Unix */
 
-use std::env;
-use std::fs;
+use std::{env, process};
+use minigrep::Config;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let query = &args[1];
-    let file_path = &args[2];
-    
-    println!("In file {file_path}");
+    let config = Config::build(&args).unwrap_or_else(|err| {
+        println!("Problem parsing arguments: {err}");
+        process::exit(1);
+    });
 
-    let content = fs::read_to_string(file_path).expect("Cannot open the file");
-
-    println!("With text:\n{content}");
+    if let Err(e) = minigrep::run(config) {
+        println!("Application error: {e}");
+        process::exit(1);
+    }
 }
